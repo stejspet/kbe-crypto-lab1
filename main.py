@@ -2,6 +2,7 @@
 from string import ascii_letters
 from string import printable
 import collections
+import math
 
 
 def bin2txt(value):
@@ -112,11 +113,57 @@ def crack_multi_xor(cipher_text, key_length):
         return full_key, result
 
 
-# def kasiski_like_test(cipher_text):
-#     data = hex2bin(cipher_text)
-#     i = 0
-#     while i < len(data):
+def get_divisors(number):
+    max_key_length = 20
+    factors = []
+    for i in range(2, max_key_length):
+        if number % i == 0:
+            factors.append(i)
+    return factors
 
+
+def kasiski_like_test(cipher_text):
+    trigram_list = {}
+    i = 0
+    while i < len(cipher_text) - 5:
+        trigram = cipher_text[i:i+6]
+        if hex2txt(trigram) not in trigram_list.keys():
+            trigram_list[hex2txt(trigram)] = []
+        else:
+            i += 2
+            continue
+        for j in range(i+2, len(cipher_text) - 5, 2):
+            if trigram == cipher_text[j:j+6]:
+                trigram_list[hex2txt(trigram)].append(j - i)
+        i += 2
+
+    groups_list = [v for v in trigram_list.values() if len(v) > 0]
+    groups = list(set([item for group in groups_list for item in group]))
+    divs = []
+    divisors = {}
+    for g in groups:
+        divs.extend(get_divisors(g))
+    for d in divs:
+        if d not in divisors.keys():
+            divisors[d] = 1
+        else:
+            divisors[d] += 1
+
+    divisors = {k: v for k, v in sorted(divisors.items(), key=lambda item: item[1], reverse=True)}
+    key_lengths = []
+    best = max(divisors.values())
+    for k, v in divisors.items():
+        if v > (best/100)*90:
+            key_lengths.append(k)
+            best = v
+        else:
+            break
+    for l in range(len(key_lengths) - 1):
+        if key_lengths[l + 1] % key_lengths[l] == 0:
+            continue
+        else:
+            return key_lengths[l]
+    return key_lengths[-1]
 
 
 if __name__ == '__main__':
@@ -160,9 +207,8 @@ if __name__ == '__main__':
     print("=== Exercise 6 ===")
     with open("text3.hex", "r") as file:
         data = file.read().replace('\n','')
-        key, result = crack_multi_xor(data, 16)
+        key_length = kasiski_like_test(data)
+        key, result = crack_multi_xor(data, key_length)
         print("Key: ", key)
         print(result.split("\n")[0])
-        # for i in range(3,20):
-        #     result = crack_multi_xor(data, i)
-        #     print(result)
+
