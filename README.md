@@ -50,15 +50,14 @@ The point of this task was to automate the "see the correct output" process. A r
 
 * Since the function is supposed to be used in polyalphabetical exercises as well, it can't be a vocabulary technique
 * Instead a frequency analysis was chosen 
-  * The text is decoded with all letters (both upper- and lowercase)
+  * The text is decoded with all letters (both upper- and lowercase), or in exercise 5 and 6 all printable characters
   * All characters but letters are stripped from the decrypted output, all letters are transformed to uppercase (because we know letter distributions in languages for case-insensitive texts only)
   * At first, English frequencies are used. Five most frequent letters are given a score (5,4,3,2,2) and five least frequent letters as well (-5,-4,-3,-2,-2).
-  * Then a letter frequency distribution is done for each output and an overall score is counted:
-    * When any of the most frequent English letters is among 10 most frequent letters of the output, the letter score (as above) is added to overall score of the output. If the letter is among 10 least frequent letters, its score is subtracted. 
-    * Analogically for the least frequent English letters.
-    * A letter with the highest overall score wins.
+  * Then a letter frequency distribution is done for each key and an overall score is counted:
+    * When any of the most/least frequent English letters is among 10 most frequent letters of the output, the letter score (as above) is added to overall score of the key (which means subtracting for the least frequent). If the letter is among 10 least frequent letters, its score is subtracted. 
+    * A key with the highest overall score wins.
   * The only problem is that our exercise is case-sensitive, so we need to decide on that too.
-    * Since the winning key (in both upper- and lowercase) will have the same winning score, one is chosen randomly and the text is decrypted with that.
+    * Since the winning key in both upper- and lowercase will have the same winning score, one is chosen randomly and the text is decrypted with that.
     * The first 50 letters (only letters) of the output are taken, if there are more than 50% upper-case letters, the other case of the key is chosen.
 * English frequencies were later changed to French because of Exercise 5. Since it did not seem to make any difference, we kept the French.
 
@@ -79,7 +78,7 @@ First line is `C'est le nouveau, phenomenal, freestyle du visage pale`.
 ## Exercise 6: crack multiple-letter xor with unknown key length
 In this exercise we need to also find the length of the key. When we know it, we can use the function ***crack_multi_xor()*** from exercise 5 with the key length we found.
 
-The length of the key is found by a method based on Kasisky test. The algorithm is trying to deduce the length of the key by repeating sequences (trigrams here) in the ciphertext.
+The length of the key is found by a method based on Kasisky test, implemented in ***kasiski_like_test()*** function. The algorithm is trying to deduce the length of the key by repeating sequences (trigrams here) in the ciphertext.
 
 **Solution**:
 
